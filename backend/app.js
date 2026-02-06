@@ -468,17 +468,12 @@ app.get('/endSession', (req, res) => {
 
 //Appointment Related
 
-// --------------------------------------------------------
-// --- [修改版] 获取医生排班接口 (位置已修正) ---
-// --------------------------------------------------------
 app.get('/getDocScheduleOnDate', (req, res) => {
   const params = req.query;
   const docEmail = params.email;
-  const dateStr = params.date; // 格式 YYYY-MM-DD
+  const dateStr = params.date;
 
-  console.log(`[Schedule] Checking for ${docEmail} on ${dateStr}`);
-
-  // 1. 先查询当天已有的预约 (用于置灰)
+  // 1. 先查詢當天預約情況
   const apptQuery = `
     SELECT a.starttime 
     FROM Appointment a
@@ -489,19 +484,12 @@ app.get('/getDocScheduleOnDate', (req, res) => {
   `;
 
   con.query(apptQuery, (err, apptRes) => {
-    if (err) {
-      console.error("Error fetching appointments:", err);
-      // 如果查询预约出错，仍然返回一个空列表，不阻断流程
-      apptRes = []; 
-    }
-
-    // 提取忙碌时间段 ["09:00:00", "10:00:00"]
     const busySlots = apptRes ? apptRes.map(item => item.starttime) : [];
 
-    // 2. 查询排班表 (Schedule)
+    // 2. 查詢排班規則
     const sql_date_check = `DAYNAME('${dateStr}')`;
     const scheduleQuery = `
-      SELECT s.starttime, s.endtime, s.breaktime 
+      SELECT s.starttime, s.endtime, s.breaktime, s.is_off 
       FROM DocsHaveSchedules dhs
       JOIN Schedule s ON dhs.sched = s.id
       WHERE dhs.doctor = "${docEmail}" 
@@ -509,28 +497,35 @@ app.get('/getDocScheduleOnDate', (req, res) => {
     `;
 
     con.query(scheduleQuery, (err, scheduleRes) => {
-      // 定义默认时间 (保底策略)
+      // 預設值物件
       let finalSchedule = {
-        working: true,
-        start: "09:00:00", // 默认早上9点
-        end: "17:00:00",   // 默认下午5点
-        break: "12:00:00", // 默认中午12点休息
+        working: true,     // 預設為上班
+        isRestDay: false,  // 預設不是休息日
+        start: "09:00:00",
+        end: "17:00:00",
+        break: "12:00:00",
         busy: busySlots
       };
 
       if (err) {
-        console.log("Error checking schedule, using default 9-17.");
+        console.error("Query error, using defaults.");
       } else if (scheduleRes.length > 0) {
-        // 如果数据库里真有排班，就用数据库的
-        console.log("Found DB schedule for today.");
-        finalSchedule.start = scheduleRes[0].starttime;
-        finalSchedule.end = scheduleRes[0].endtime;
-        finalSchedule.break = scheduleRes[0].breaktime;
+        // 如果資料庫有設定
+        if (scheduleRes[0].is_off === 1) {
+          // --- 重點：如果標記為休息，設定為休診 ---
+          finalSchedule.working = false;
+          finalSchedule.isRestDay = true;
+        } else {
+          // 如果沒休息，則使用資料庫設定的時間
+          finalSchedule.start = scheduleRes[0].starttime;
+          finalSchedule.end = scheduleRes[0].endtime;
+          finalSchedule.break = scheduleRes[0].breaktime;
+        }
       } else {
-        console.log("No schedule found in DB, using default 9-17.");
+        // --- 重點：資料庫完全沒資料，執行你的要求「預設 9-17」 ---
+        console.log("No DB record, using system defaults 09:00-17:00");
       }
 
-      // 返回结果
       return res.json(finalSchedule);
     });
   });

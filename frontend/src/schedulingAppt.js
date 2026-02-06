@@ -40,7 +40,7 @@ const theme = {
   }
 };
 
-// 全域變數用於表單提交（維持原邏輯）
+// 全域變數用於表單提交
 var theDate;
 var theTime;
 var endTime;
@@ -126,6 +126,13 @@ const TimeSlotPicker = ({ selectedDoc, selectedDate, onTimeSelect }) => {
       .then(data => {
             setLoading(false);
             
+            // --- 修改點：判斷醫生是否休息 ---
+            if (data.working === false) {
+                setStatusMsg("📅 醫師今日休診 (Rest Day)，請選擇其他日期。");
+                return;
+            }
+            // ---------------------------
+
             const startHour = parseInt(data.start.split(':')[0]);
             const endHour = parseInt(data.end.split(':')[0]);
             const breakHour = parseInt(data.break.split(':')[0]);
@@ -169,8 +176,8 @@ const TimeSlotPicker = ({ selectedDoc, selectedDate, onTimeSelect }) => {
 
   if (statusMsg) {
       return (
-          <Box align="center" pad="medium" background="light-gray">
-              <Text color="status-critical">{statusMsg}</Text>
+          <Box align="center" pad="medium" background="#FFF5F5" border={{color: 'status-critical'}}>
+              <Text color="status-critical" weight="bold">{statusMsg}</Text>
           </Box>
       );
   }
@@ -240,7 +247,7 @@ const TimeSlotPicker = ({ selectedDoc, selectedDate, onTimeSelect }) => {
   );
 };
 
-// 表單組件改為繁體
+// 表單輸入組件
 const ConcernsTextArea = () => {
   const [value, setValue] = React.useState("");
   return (
@@ -327,7 +334,7 @@ export class SchedulingAppt extends Component {
                         .then(res => res.json())
                         .then(res => {
                         if (res.data[0]) {
-                            window.alert("哎呀！該時段剛剛已被其他患者預約。");
+                            window.alert("此時段預約失敗（可能與其他預約衝突或醫師已休息）。");
                             this.setState({ time: null });
                         } else {
                             fetch("http://localhost:3001/genApptUID")
