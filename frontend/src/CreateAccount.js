@@ -136,7 +136,7 @@ export class CreateAccount extends Component {
                   </Box>
                   <Box width="small">
                     <FormField label="GENDER / 性別" name="gender" required>
-                      <Select options={['男', '女']} name="gender" placeholder="Select" />
+                      <Select options={['Male', 'Female']} name="gender" placeholder="Select" />
                     </FormField>
                   </Box>
                 </Box>

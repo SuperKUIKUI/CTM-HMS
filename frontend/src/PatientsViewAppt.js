@@ -106,20 +106,20 @@ export class PatientsViewAppointments extends Component {
                                 <Table style={{ borderCollapse: 'collapse', width: '100%' }}>
                                     <TableHeader>
                                         <TableRow background="black">
-                                            <TableCell pad="medium" border={{ side: 'right', color: 'white' }}>
-                                                <Text color="white" weight="bold" size="small">日期 / DATE</Text>
+                                            <TableCell pad="medium" border={{ side: 'right', color: 'black' }}>
+                                                <Text color="black" weight="bold" size="small">日期 / DATE</Text>
                                             </TableCell>
-                                            <TableCell pad="medium" border={{ side: 'right', color: 'white' }}>
-                                                <Text color="white" weight="bold" size="small">時間 / TIME</Text>
+                                            <TableCell pad="medium" border={{ side: 'right', color: 'black' }}>
+                                                <Text color="black" weight="bold" size="small">時間 / TIME</Text>
                                             </TableCell>
-                                            <TableCell pad="medium" border={{ side: 'right', color: 'white' }}>
-                                                <Text color="white" weight="bold" size="small">門診原因 / CONCERNS</Text>
+                                            <TableCell pad="medium" border={{ side: 'right', color: 'black' }}>
+                                                <Text color="black" weight="bold" size="small">門診原因 / CONCERNS</Text>
                                             </TableCell>
-                                            <TableCell pad="medium" border={{ side: 'right', color: 'white' }}>
-                                                <Text color="white" weight="bold" size="small">狀態 / STATUS</Text>
+                                            <TableCell pad="medium" border={{ side: 'right', color: 'black' }}>
+                                                <Text color="black" weight="bold" size="small">狀態 / STATUS</Text>
                                             </TableCell>
                                             <TableCell pad="medium" textAlign="center">
-                                                <Text color="white" weight="bold" size="small">管理 / ACTION</Text>
+                                                <Text color="black" weight="bold" size="small">管理 / ACTION</Text>
                                             </TableCell>
                                         </TableRow>
                                     </TableHeader>
